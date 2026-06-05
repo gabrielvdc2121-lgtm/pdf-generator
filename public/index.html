@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Autorizacion de Trabajo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .form-section h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .dynamic-rows {
+      margin-top: 15px;
+    }
+
+    .dynamic-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      align-items: flex-end;
+    }
+
+    .dynamic-row input {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .btn-remove {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-remove:hover {
+      background: #ff5252;
+    }
+
+    .btn-add {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .btn-add:hover {
+      background: #45a049;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .btn-generar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn-generar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-limpiar {
+      background: #999;
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn-limpiar:hover {
+      background: #777;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Generador de Autorizacion de Trabajo</h1>
+      <p>Completa los datos y genera tu PDF</p>
+    </div>
+
+    <div class="content">
+      <div id="alert" class="alert"></div>
+
+      <form id="pdfForm">
+        <div class="form-section">
+          <h2>1. INFORMACION GENERAL</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="empresa">Empresa *</label>
+              <input type="text" id="empresa" name="empresa" required>
+            </div>
+            <div class="form-group">
+              <label for="jefeProyecto">Jefe de Proyecto</label>
+              <input type="text" id="jefeProyecto" name="jefeProyecto">
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <div class="form-group">
+              <label for="identificacionTarea">Identificacion de la Tarea *</label>
+              <input type="text" id="identificacionTarea" name="identificacionTarea" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroOT">Numero OT/LOS</label>
+              <input type="text" id="numeroOT" name="numeroOT">
+            </div>
+            <div class="form-group">
+              <label for="lugarTarea">Lugar Exacto del Trabajo *</label>
+              <input type="text" id="lugarTarea" name="lugarTarea" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>2. RESPONSABLES</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="supervisor">Supervisor Responsable *</label>
+              <input type="text" id="supervisor" name="supervisor" required>
+            </div>
+            <div class="form-group">
+              <label for="cargoSupervisor">Cargo</label>
+              <input type="text" id="cargoSupervisor" name="cargoSupervisor">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="administrador">Administrador de Contratos</label>
+              <input type="text" id="administrador" name="administrador">
+            </div>
+            <div class="form-group">
+              <label for="cargoAdmin">Cargo</label>
+              <input type="text" id="cargoAdmin" name="cargoAdmin">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="responsableServicio">Responsable del Servicio</label>
+              <input type="text" id="responsableServicio" name="responsableServicio">
+            </div>
+            <div class="form-group">
+              <label for="cargoServicio">Cargo</label>
+              <input type="text" id="cargoServicio" name="cargoServicio">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>3. TABLA DE AUTORIZACIONES</h2>
+          
+          <div class="dynamic-rows" id="autorizacionesContainer">
+            <div class="dynamic-row">
+              <input type="date" placeholder="Fecha" class="auth-fecha">
+              <input type="time" placeholder="Hora Inicio" class="auth-horaInicio">
+              <input type="time" placeholder="Hora Termino" class="auth-horaTermino">
+              <button type="button" class="btn-remove" onclick="removerFila(this)">Eliminar</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add" onclick="agregarFilaAutorizacion()">+ Agregar Autorizacion</button>
+        </div>
+
+        <div class="form-section">
+          <h2>4. PERMISO ESCRITO (PETAR)</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="lugarPETAR">Lugar</label>
+              <input type="text" id="lugarPETAR" name="lugarPETAR">
+            </div>
+            <div class="form-group">
+              <label for="fechaPETAR">Fecha</label>
+              <input type="date" id="fechaPETAR" name="fechaPETAR">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="horaInicioPETAR">Hora Inicio</label>
+              <input type="time" id="horaInicioPETAR" name="horaInicioPETAR">
+            </div>
+            <div class="form-group">
+              <label for="horaFinalPETAR">Hora Final</label>
+              <input type="time" id="horaFinalPETAR" name="horaFinalPETAR">
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <div class="form-group">
+              <label for="descripcionTrabajo">Descripcion del Trabajo *</label>
+              <textarea id="descripcionTrabajo" name="descripcionTrabajo" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Seleccion de Trabajos de Alto Riesgo</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="trabajoEspaciosConfinados" name="trabajoEspaciosConfinados">
+                <label for="trabajoEspaciosConfinados">Trabajo en Espacios Confinados</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="trabajoTuberias" name="trabajoTuberias">
+                <label for="trabajoTuberias">Trabajo en Tuberias</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="trabajoAltura" name="trabajoAltura">
+                <label for="trabajoAltura">Trabajo en Altura</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="trabajoAbierto" name="trabajoAbierto">
+                <label for="trabajoAbierto">Trabajo Abierto</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>5. EQUIPO DE PROTECCION REQUERIDO</h2>
+          
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="proteccionCabeza" name="proteccionCabeza">
+              <label for="proteccionCabeza">Proteccion para la Cabeza</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="proteccionCuerpo" name="proteccionCuerpo">
+              <label for="proteccionCuerpo">Proteccion para el Cuerpo</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="proteccionOjos" name="proteccionOjos">
+              <label for="proteccionOjos">Proteccion para los Ojos</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="proteccionOidos" name="proteccionOidos">
+              <label for="proteccionOidos">Proteccion para los Oidos</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-generar">Generar PDF</button>
+          <button type="reset" class="btn-limpiar">Limpiar</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Generando PDF...</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function agregarFilaAutorizacion() {
+      const container = document.getElementById('autorizacionesContainer');
+      const fila = document.createElement('div');
+      fila.className = 'dynamic-row';
+      fila.innerHTML = `
+        <input type="date" placeholder="Fecha" class="auth-fecha">
+        <input type="time" placeholder="Hora Inicio" class="auth-horaInicio">
+        <input type="time" placeholder="Hora Termino" class="auth-horaTermino">
+        <button type="button" class="btn-remove" onclick="removerFila(this)">Eliminar</button>
+      `;
+      container.appendChild(fila);
+    }
+
+    function removerFila(btn) {
+      btn.parentElement.remove();
+    }
+
+    function mostrarAlerta(mensaje, tipo = 'success') {
+      const alert = document.getElementById('alert');
+      alert.textContent = mensaje;
+      alert.className = 'alert alert-' + tipo;
+      alert.style.display = 'block';
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 5000);
+    }
+
+    function recopilarDatos() {
+      const form = document.getElementById('pdfForm');
+      const formData = new FormData(form);
+      const datos = Object.fromEntries(formData);
+
+      const autorizaciones = [];
+      document.querySelectorAll('.dynamic-row').forEach(fila => {
+        const fecha = fila.querySelector('.auth-fecha').value;
+        const horaInicio = fila.querySelector('.auth-horaInicio').value;
+        const horaTermino = fila.querySelector('.auth-horaTermino').value;
+
+        if (fecha || horaInicio || horaTermino) {
+          autorizaciones.push({
+            fecha: fecha || '',
+            horaInicio: horaInicio || '',
+            horaTermino: horaTermino || ''
+          });
+        }
+      });
+
+      datos.autorizaciones = autorizaciones;
+      return datos;
+    }
+
+    document.getElementById('pdfForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const datos = recopilarDatos();
+      const loading = document.getElementById('loading');
+
+      loading.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/generar-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+
+        const result = await response.json();
+
+        loading.style.display = 'none';
+
+        if (result.success) {
+          mostrarAlerta('PDF generado exitosamente. Descargando...', 'success');
+          setTimeout(() => {
+            window.location.href = result.downloadUrl;
+          }, 1500);
+        } else {
+          mostrarAlerta('Error: ' + result.error, 'error');
+        }
+      } catch (error) {
+        loading.style.display = 'none';
+        mostrarAlerta('Error de conexion: ' + error.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
